@@ -43,7 +43,7 @@ Attributes
 Student provides a high-level overview of the project in layman’s terms. Background information such as the problem domain, the project origin, and related data sets or input data is given.
 
 With my background in transport and logistics I went to find an interesting data set from the area. There are suprizingly few logistics and transportation data sets avalible. One however found my attantion. With the advent of the sharing economy transportation systems are transformed. Ownwership of a vehecile is not longer necassary. Service providers offer the acesses to  vehicle pool for cars of all sizes as well as bikes. Theses arrangement are interesting for residential customers as well as for tourists. The promiss to have a vehicle at your disposel, whenenver you need on and not to wory about upfront costs and maitenance. 
-To fullfill this promis the service providers need to have ecxelent capacity planing capabilities. They have to forcast demand to shedule maintenence and provide the right amount of vehicles. So forecasting demand is of the essance to provide a atractive service. This is why I try to create a predictor for the customers demand of bicicles in the city of XY utelizing machine learning.
+To fullfill this promis the service providers need to have ecxelent capacity planing capabilities. They have to forcast demand to shedule maintenence and provide the right amount of vehicles. So forecasting demand is of the essance to provide a atractive service. This is why I try to create a predictor for the customers demand of bicicles in Washington DC utelizing machine learning.
 
 ### Problem Statement
 The problem which needs to be solved is clearly defined. A strategy for solving the problem, including discussion of the expected solution, has been made.
@@ -172,5 +172,51 @@ http://scikit-learn.org/stable/index.html
  year={2011}
 }
 
-
-
+https://www.tensorflow.org/
+@misc{tensorflow2015-whitepaper,
+title={{TensorFlow}: Large-Scale Machine Learning on Heterogeneous Systems},
+url={http://tensorflow.org/},
+note={Software available from tensorflow.org},
+author={
+    Mart\'{\i}n~Abadi and
+    Ashish~Agarwal and
+    Paul~Barham and
+    Eugene~Brevdo and
+    Zhifeng~Chen and
+    Craig~Citro and
+    Greg~S.~Corrado and
+    Andy~Davis and
+    Jeffrey~Dean and
+    Matthieu~Devin and
+    Sanjay~Ghemawat and
+    Ian~Goodfellow and
+    Andrew~Harp and
+    Geoffrey~Irving and
+    Michael~Isard and
+    Yangqing Jia and
+    Rafal~Jozefowicz and
+    Lukasz~Kaiser and
+    Manjunath~Kudlur and
+    Josh~Levenberg and
+    Dan~Man\'{e} and
+    Rajat~Monga and
+    Sherry~Moore and
+    Derek~Murray and
+    Chris~Olah and
+    Mike~Schuster and
+    Jonathon~Shlens and
+    Benoit~Steiner and
+    Ilya~Sutskever and
+    Kunal~Talwar and
+    Paul~Tucker and
+    Vincent~Vanhoucke and
+    Vijay~Vasudevan and
+    Fernanda~Vi\'{e}gas and
+    Oriol~Vinyals and
+    Pete~Warden and
+    Martin~Wattenberg and
+    Martin~Wicke and
+    Yuan~Yu and
+    Xiaoqiang~Zheng},
+  year={2015},
+}
