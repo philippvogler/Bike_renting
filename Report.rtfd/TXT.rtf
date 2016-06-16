@@ -1,0 +1,968 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier-Oblique;\f2\fmodern\fcharset0 Courier;
+\f3\fnil\fcharset0 HelveticaNeue;\f4\fmodern\fcharset0 Courier-BoldOblique;}
+{\colortbl;\red255\green255\blue255;\red204\green46\blue18;\red0\green0\blue0;\red36\green43\blue141;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14360\viewh16420\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Capstone Project\
+Machine Learning Engineer Nanodegree\
+\
+
+\b\fs36 Demand prediction for a bike sharing systems
+\b0\fs24 \
+\
+
+\i Mai 2016  \
+Philipp Vogler  
+\i0 \
+\
+
+\b\fs32 \ul 1. Definition
+\b0\fs24 \ulnone \
+\
+
+\b\fs28 1.1 Project Overview  
+\b0\fs24 \
+\
+
+\fs28 - A Problem in the area of transport and logistics that is solvable with machine learning.\
+- Utilizing machine learning to forecast the demand for the Washington DC bike sharing system 'capital bike share'. \
+- Using different types of regression to find an algorithm to predict the demand for bikes based on calendric and weather information.  \
+- Weather, calendar and demand information is provided in a dataset by the University of Porto at UCI ML Repository.  \
+- This project tries to create a forecasting function based on two years of historical data by utilizing the machine learning libraries scikit-learn and tensor-flow.  
+\fs24 \
+\
+> http://www.capitalbikeshare.com   \
+> http://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset  \
+> http://freemeteo.de/wetter/  \
+> http://dchr.dc.gov/page/holiday-schedules  \
+> http://scikit-learn.org/stable/  \
+> https://www.tensorflow.org  \
+\
+
+\b\fs28 1.2 Problem Statement  
+\b0\fs24 \
+\
+
+\fs28 The goal is to forecast the demand for bikes in dependency of weather conditions like outside temperature and calendric informations e.g. holidays. These information and the demand structure is provided in a set with two years of daily historic data.  \
+The demand is given as the total daily demand and as a split for registered users and casual users. To increase the quality of the prediction registered user demand and casual user demand will be predicted separately in step two.  \
+To make predictions machine learning is used to train regressors. Scikit-Learn recommends a support vector regressor (SVR) for this kind of problem and data amount. In addition a deep neuronal network (DNN) regressor is trained for comparison. To find the hyper-parameters for these regressors grid search and randomized search are utilized. Due to the small dataset cross validation is applied.  
+\fs24 \
+\
+> http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html  \
+> http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html#sklearn.svm.SVR  \
+> https://github.com/tensorflow/skflow/blob/master/g3doc/api_docs/python/estimators.md  \
+> http://scikit-learn.org/stable/modules/generated/sklearn.grid_search.GridSearchCV.html  \
+> http://scikit-learn.org/stable/modules/generated/sklearn.grid_search.RandomizedSearchCV.html\
+\
+
+\b\fs28 1.3 Metrics
+\b0\fs24 \
+\
+
+\fs28 To measure the performance of the regressions two standard regression metrics are used: Mean squared eror (MSE) and the coefficient of determination (R^2). Both metrics are calculated for both regressor types. For comparison and parameter tuning only R^2 is used due to the better readability.
+\fs24 \
+\
+> http://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html#sklearn.metrics.mean_squared_error  \
+> http://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html#sklearn.metrics.r2_score  \
+\
+
+\b\fs32 \ul 2 Analysis
+\b0\fs24 \ulnone \
+\
+
+\b\fs28 2.1 Data Exploration
+\b0\fs24 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\i\fs28 \cf0 \expnd0\expndtw0\kerning0
+Feature column(s):
+\f2\i0 \
+'instant'\
+\'91dteday'\
+'season\'92\
+\'91yr'\
+'mnth'\
+'holiday'\
+'weekday'\
+'workingday'\
+'weathersit'\
+'temp'\
+'atemp'\
+'hum'\
+'windspeed'\
+\
+
+\f1\i Target column:\
+
+\f2\i0 cnt\
+\
+
+\f1\i Data values:
+\f2\i0 \
+   instant      dteday  season  yr  mnth  holiday  weekday  workingday  \\\
+0        1  2011-01-01       1   0     1        0        6           0   \
+1        2  2011-01-02       1   0     1        0        0           0   \
+2        3  2011-01-03       1   0     1        0        1           1   \
+3        4  2011-01-04       1   0     1        0        2           1   \
+4        5  2011-01-05       1   0     1        0        3           1   \
+\
+   weathersit      temp     atemp       hum  windspeed  casual  registered  \\\
+0           2  0.344167  0.363625  0.805833   0.160446     331         654   \
+1           2  0.363478  0.353739  0.696087   0.248539     131         670   \
+2           1  0.196364  0.189405  0.437273   0.248309     120        1229   \
+3           1  0.200000  0.212122  0.590435   0.160296     108        1454   \
+4           1  0.226957  0.229270  0.436957   0.186900      82        1518   \
+\
+    cnt  \
+0   985  \
+1   801  \
+2  1349  \
+3  1562  \
+4  1600  \
+\
+
+\f1\i Data stats:
+\f2\i0 \cf2 \
+\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrs\brdrw20\brdrcf0 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+
+\f3\b \cf0 \cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 instant\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 season\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 yr\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 mnth\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 holiday\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 weekday\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 workingday\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 weathersit\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 temp\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 atemp\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 hum\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 windspeed\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 casual\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 registered\cell 
+\pard\intbl\itap1\pardeftab720\qr\partightenfactor0
+\cf0 cnt\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 count\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0 \cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 731\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b \cf0 mean\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0 \cf0 366\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2.49\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.50\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 6.51\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.02\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2.99\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.68\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.39\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.49\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.47\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.62\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.19\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 848\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3656\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 4504\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b \cf0 std\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0 \cf0 211\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.11\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.50\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3.45\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.16\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.46\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.54\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.18\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.16\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.14\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.07\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 686\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1560\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1937\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b \cf0 min\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0 \cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.05\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.07\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.02\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 20.0\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 22.0\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b \cf0 25%\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0 \cf0 183.5\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 4.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.33\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.33\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.52\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.13\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 315\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2497\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3152\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b \cf0 50%\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0 \cf0 366\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 7.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.49\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.48\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.62\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.18\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 713\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3662\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 4548\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b \cf0 75%\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0 \cf0 548\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 10.0\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 5.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.65\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.60\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.73\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.23\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1096\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 4776\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 5956\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrs\brdrw20\brdrcf0 \trbrdrb\brdrs\brdrw20\brdrcf0 \trbrdrr\brdrs\brdrw20\brdrcf0 
+\clvertalc \clshdrawnil \clwWidth220\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx540
+\clvertalc \clshdrawnil \clwWidth720\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1080
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1620
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2700
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3240
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3780
+\clvertalc \clshdrawnil \clwWidth640\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx4860
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5400
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5940
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth620\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7020
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx7560
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8100
+\clvertalc \clshdrawnil \clwWidth680\clftsWidth3 \clmart280 \clmarl560 \clmarb280 \clmarr560 \clbrdrt\brdrs\brdrw20\brdrcf0 \clbrdrl\brdrs\brdrw20\brdrcf0 \clbrdrb\brdrs\brdrw20\brdrcf0 \clbrdrr\brdrs\brdrw20\brdrcf0 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b \cf0 max\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0 \cf0 731\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 4.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 12.0\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 6.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 1.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.86\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.84\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.97\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 0.50\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3410\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 6946\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 8714\cell \lastrow\row
+\pard\pardeftab720\partightenfactor0
+
+\f2 \cf0 \
+
+\f0\b\fs24 Characteristics
+\b0 \
+\
+
+\fs28 - The dataset is very concise and missing values are not a problem.   \
+- Most of the data is already normalized or binary.  \
+- Categorical data like 'weekday' or 'working day' are already processed. \
+
+\f2 \
+
+\f0\b 2.2 Exploratory Visualization
+\b0 \
+\
+The visualization shows a classic seasonal pattern with an up trend year over year. There are some outliers. These are left in the dataset because they are not due to measurement errors, but to extreme weather conditions. Because extreme weather conditions are part of the problem, so the data is not excluded.
+\f2 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 {{\NeXTGraphic figure_1.png \width11520 \height8640
+}¬}\
+\
+\
+
+\b\fs28 2.3 Data Preprocessing (Methodology)
+\b0\fs24 \
+\
+
+\fs28 Dates get dropped because the regressor can not read this datatype and the order information is already stored in the index. The instant variable replicates this information also. \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\b \cf0 2.4 Algorithms and Techniques
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+Two types of regressors are trained. An SVR and a DNN-Regressor. Both are first used off-the-shelf with default parameters to create a benchmark.
+\fs24 \
+\
+> http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html#sklearn.svm.SVR  \
+> https://github.com/tensorflow/skflow/blob/master/g3doc/api_docs/python/estimators.md  \
+\
+
+\b\fs28 2.5 Benchmark\
+
+\b0\fs24 \
+
+\fs28 Both "benchmarks" for the coefficient of determination are very low. Parameter tuning is mandatory.
+\fs24 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs28 \cf0 \expnd0\expndtw0\kerning0
+SVR(C=1.0, cache_size=200, coef0=0.0, degree=3, epsilon=0.1, gamma='auto',\
+  kernel='rbf', max_iter=-1, shrinking=True, tol=0.001, verbose=False)\
+\
+
+\f1\i Score SVR: \
+
+\f2\i0 -0.031042\
+\
+skflow.TensorFlowDNNRegressor\
+(hidden_units=[10,10], steps=5000, learning_rate=0.1, batch_size=1)\
+\
+
+\f1\i Score: 
+\f2\i0 \
+-0.082288
+\f0\fs24 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+
+\b\fs32 \expnd0\expndtw0\kerning0
+\ul 3 Methodology
+\b0\fs28 \ulnone \
+\
+
+\b 3.1 Implementation
+\b0\fs24 \
+\
+
+\fs28 The regressors are trained using randomized search and cross-validation to identify the area of the best parameters. Then a grid search is used to tune parameter values of the regressor functions.
+\fs24 \
+\
+> http://scikit-learn.org/stable/modules/generated/sklearn.grid_search.GridSearchCV.html  \
+> http://scikit-learn.org/stable/modules/generated sklearn.grid_search.RandomizedSearchCV.html
+\f2 \
+
+\fs28 \
+\
+
+\f4\i\b Tuning SVR with GridSearch
+\f2\i0\b0 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 GridSearchCV(cv=None, error_score='raise',\
+       estimator=SVR(C=1, cache_size=200, coef0=0.0, degree=3, epsilon=0.1, gamma='auto',\
+  kernel='rbf', max_iter=-1, shrinking=True, tol=0.001, verbose=False),\
+       fit_params=\{\}, iid=True, n_jobs=-1,\
+       param_grid=[\{'kernel': ['linear', 'rbf'], 'C': [1000, 3000, 10000]\}],\
+       pre_dispatch='2*n_jobs', refit=True, scoring='r2', verbose=0)\
+\
+
+\f1\i Best parameter from grid search:
+\f2\i0  \
+\{'kernel': 'linear', 'C': 3000\}\
+\
+
+\f4\i\b SVR Results
+\f2\i0\b0 \
+\
+Score SVR: -0.031042\
+Score SVR tuned GS: 0.798317\
+\
+
+\f4\i\b SVR tuned with RandomizesSearch
+\f1\b0 \
+
+\f2\i0 \
+
+\f1\i best CV score from grid search:
+\f2\i0  \
+0.769187\
+\
+
+\f1\i corresponding parameters:
+\f2\i0  \
+\{'kernel': 'linear', 'C': 10470.023139013298\}\
+\
+
+\f4\i\b SVR Results
+\f2\i0\b0 \
+\
+Score SVR: -0.031042\
+Score SVR tuned GS: 0.798317\
+Score SVR tuned RS: 0.802120\
+\
+
+\f0 The tuning works for the SVR.
+\f2 \
+\
+
+\f4\i\b DNN-Regressor tuned with GS
+\f2\i0\b0 \
+\
+
+\f1\i best CV score from grid search:
+\f2\i0  \
+0.197747\
+\
+
+\f1\i corresponding parameters:\
+
+\f2\i0  \{'steps': 100, 'learning_rate': 1.0, 'hidden_units': [13, 13], 'batch_size': 250\}\
+\
+
+\f1\i Score:
+\f2\i0  \
+0.138676\
+\
+
+\f4\i\b DNN Regressor Results
+\f2\i0\b0 \
+\
+DNN: -0.082288\
+DNN tuned grid: 0.138676\
+\
+
+\f4\i\b DNN-Regressor tuned with RandomizesSearch
+\f2\i0\b0 \
+\
+
+\f1\i best CV score from grid search: \
+
+\f2\i0 0.296782\
+\
+
+\f1\i corresponding parameters:
+\f2\i0  \
+\{'learning_rate': 0.7765638848002953, 'hidden_units': [12, 12], 'batch_size': 318\}\
+\
+
+\f1\i Score: 
+\f2\i0 \
+0.143749\
+\
+
+\f0 Same picture with the DNN Regressor. The tuning helps, but the results are still underwhelming. Also, the best DNN result is no match for the tuned SVR.\
+
+\f2 \
+
+\f4\i\b Results
+\f2\i0\b0 \
+\
+SVR: -0.031042\
+SVR tuned grid: 0.798317\
+SVR tuned random: 0.802120\
+\
+DNN: -0.082288\
+DNN tuned grid: 0.138676\
+DNN tuned random: 0.143749\
+\
+
+\f0 SVR works better than the DNN Regressor.\
+
+\f2 \
+
+\f0\b 3.2 Refinement  \
+
+\b0 \
+The count of rented bikes (cnt) is just the sum of the features casual and registered. Two separate models are trained to predict these features. And add up afterward. This split should improve the projection.
+\f2 \
+\
+
+\f4\i\b SVR with GridSearch - for casual users
+\f2\i0\b0 \
+\
+
+\f1\i Feature columns:
+\f2\i0 \
+Index([u'instant', u'dteday', u'season', u'yr', u'mnth', u'holiday',\
+       u'weekday', u'workingday', u'weathersit', u'temp', u'atemp', u'hum',\
+       u'windspeed'],\
+      dtype='object')\
+\
+
+\f1\i Target column:
+\f2\i0 \
+casual\
+\
+GridSearchCV(cv=None, error_score='raise',\
+       estimator=SVR(C=1, cache_size=200, coef0=0.0, degree=3, epsilon=0.1, gamma='auto',\
+  kernel='rbf', max_iter=-1, shrinking=True, tol=0.001, verbose=False),\
+       fit_params=\{\}, iid=True, n_jobs=-1,\
+       param_grid=[\{'kernel': ['linear', 'rbf'], 'C': [1, 3, 10, 30, 100, 300, 1000, 3000]\}],\
+       pre_dispatch='2*n_jobs', refit=True, scoring='r2', verbose=0)\
+\
+
+\f1\i Best parameter from grid search: \
+
+\f2\i0 \{'kernel': 'linear', 'C': 300\}\
+\
+
+\f4\i\b SVR with RandomizesSearch - for casual users
+\f2\i0\b0 \
+\
+
+\f1\i best CV score from grid search:
+\f2\i0  \
+0.652505\
+\
+
+\f1\i corresponding parameters:
+\f2\i0  \
+\{'kernel': 'linear', 'C': 3263.1463798458485\}\
+\
+
+\f4\i\b SVR for casual with with GridSearch - for registered users\
+
+\f2\i0\b0 \
+
+\f1\i Feature column(s):
+\f2\i0 \
+Index([u'instant', u'dteday', u'season', u'yr', u'mnth', u'holiday',\
+       u'weekday', u'workingday', u'weathersit', u'temp', u'atemp', u'hum',\
+       u'windspeed'],\
+      dtype='object')\
+\
+
+\f1\i Target column:
+\f2\i0 \
+registered\
+\
+GridSearchCV(cv=None, error_score='raise',\
+       estimator=SVR(C=1, cache_size=200, coef0=0.0, degree=3, epsilon=0.1, gamma='auto',\
+  kernel='rbf', max_iter=-1, shrinking=True, tol=0.001, verbose=False),\
+       fit_params=\{\}, iid=True, n_jobs=-1,\
+       param_grid=[\{'kernel': ['linear', 'rbf'], 'C': [1000, 3000, 10000]\}],\
+       pre_dispatch='2*n_jobs', refit=True, scoring='r2', verbose=0)\
+\
+
+\f1\i Best parameter from grid search:\
+
+\f2\i0 \{'kernel': 'linear', 'C': 1000\}\
+\
+
+\f4\i\b SVR with RandomizesSearch - for registered users
+\f2\i0\b0 \
+\
+
+\f1\i best CV score from grid search:
+\f2\i0  \
+0.652505\
+\
+
+\f1\i corresponding parameters:
+\f2\i0  \
+\{'kernel': 'linear', 'C': 3263.1463798458485\}\
+\
+\
+
+\f0\b\fs32 \ul 4 Results
+\f2\b0\fs28 \ulnone \
+\
+
+\f0\b 4.1 Model Evaluation and Validation
+\f2\b0 \
+\
+Score cas: 0.619215\
+Score reg: 0.774632\
+Score sum: 0.802635\
+\pard\pardeftab720\partightenfactor0
+\cf3 \
+
+\f0\b 4.2 Justification
+\f2\b0 \cf4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 SVR: -0.031042\
+SVR tuned grid: 0.798317\
+SVR tuned RS: 0.802120\
+\
+DNN: -0.082288\
+DNN tuned grid: 0.138676\
+DNN tuned random: 0.143749\
+\
+SVR sum: 0.802635\
+\
+
+\f0 - The SVR beats the DNN Regressor by far.  \
+- The separate prediction of casual and registered customers increases the R^2 slightly.  \
+- More than 80% determination is a decent result. 
+\f2 \
+\
+
+\f0\b\fs32 \ul 5 Conclusion
+\b0\fs24 \ulnone \
+\
+
+\b\fs28 5.1 Free-Form Visualization\
+
+\b0\fs24 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 {{\NeXTGraphic 1__#$!@%!#__figure_1.png \width11520 \height8640
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf0 \
+The predictions are reasonably good, without overfitting.
+\fs24 \
+\
+
+\b\fs28 5.2 Reflection
+\b0\fs24 \
+\
+
+\fs28 - I had high hopes for the DNN Regressor. It was kind of disappointing that it does not even come close. Maybe my tuning was not right or it needs more data or computational power.\
+- Utilizing grid and randomize search in a way that makes sense was a little tricky. It makes more sense to start with a broad grid search and than use randomized search on the given interval, instead of vis a versa. It is also computational more efficient.
+\f2 \
+\
+
+\f0\b 5.3 Improvement
+\f2\b0 \
+
+\f0\fs24 \
+
+\fs28 - The determination could be increased by additional iterations in training and the number of folds in the cross-validation, at the expense of computing time.}
