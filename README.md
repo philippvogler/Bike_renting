@@ -4,20 +4,20 @@ Predicting Bike Renting in Washington DC - Capstone Project
 Machine Learning Nanodegree Capstone Project:  
 Demand prediction of Capital Bike Share  
 
-PROJECT  
-————————  
+## PROJECT  
+  
 • Utilizing machine learning to forecast the demand for the Washington DC bike sharing system 'capital bike share'.  
 • Using different types of regression to find an algorithm to predict the demand for bikes based on calendric and weather information.  
 • This project tries to create a forecasting function based on two years of historical data by utilizing the machine learning libraries scikit-learn and tensor-flow.  
 
-DATA SET  
-———————  
+## DATA SET  
+
 Weather, calendar and demand information is provided in a dataset by the University of Porto at UCI ML Repository:  
 
 http://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset  
 
-LIBRARIES  
-————————  
+## LIBRARIES  
+
 Project is a Jupiter Notenbook:
 http://jupyter.org
 
