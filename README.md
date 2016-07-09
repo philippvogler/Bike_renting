@@ -1,4 +1,4 @@
-# Bike_renting  
+# Bike renting  
 Predicting Bike Renting in Washington DC - Capstone Project  
 
 Machine Learning Nanodegree Capstone Project:  
