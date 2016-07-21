@@ -1288,7 +1288,7 @@ There are some outliers throughout the dataset, mostly on the lower end. These a
 \
 
 \b0 Creating a model to predict demand from historical data is a supervised learning process. Forecasting the rental bike demand is obviously a quantitative prediction. Therefore a regression algorithm is needed. A simple SGD (Stochastic Gradient Descent) regressor would be the first choice, but due to the limited number of data points, a more "sophisticated" regressor is needed. An SVR (Support Vector Regressor) with more eighth a linear or an RBF (radial basis function) kernel is a good choice. They operate well even if only a limited amount of data (< 10k) is available. \
-To see if a deep neuronal network (DNN) might be able to beat a linear model for this particular prediction problem the tensorflow DNNRegressor algorithm is employed.
+To see if a deep neuronal network (DNN) might be able to beat a linear model for this particular prediction problem the tensor-flow DNN Regressor algorithm is employed.
 \fs24 \
 \
 \
@@ -1341,10 +1341,16 @@ To see if a deep neuronal network (DNN) might be able to beat a linear model for
 \f4\i\b SVR tuned with GridSearch and RandomizesSearch
 \f2\i0\b0 \
 \
-Score SVR: -0.031042\
-Score SVR tuned GS: 0.798317\
-Score SVR tuned RS: 0.802120\
+\pard\pardeftab720\partightenfactor0
+\cf0 \cb4 Score SVR: -0.029012\
+Score SVR tuned GS: 0.786930\
+Score SVR tuned RS: 0.791948\
 \
+RMSE SVR: 1895.485129\
+RMSE SVR tuned GS: 862.524552\
+RMSE SVR tuned RS: 852.306407\cb1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
+\cf0 \
 
 \f0 The tuning works for the SVR.
 \f2 \
@@ -1353,22 +1359,28 @@ Score SVR tuned RS: 0.802120\
 \f4\i\b DNN-Regressor tuned with GridSearch and RandomizesSearch\
 
 \f2\i0\b0 \
-DNN: -0.082288\
-DNN tuned GS: 0.138676\
-DNN tuned RS: 0.143749\
+\pard\pardeftab720\partightenfactor0
+\cf0 \cb4 Score DNN: 0.031714\
+Score DNN tuned GS: 0.131557\
+Score DNN tuned RS: 0.165697\
 \
+RMSE DNN: 1838.704961\
+RMSE DNN tuned GS: 1741.328626\
+RMSE DNN tuned RS: 1706.758115\cb1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
+\cf0 \
 
 \f0 Same picture with the DNN Regressor. The tuning helps, but the results are still underwhelming. Also, the best DNN result is no match for the tuned SVR.\
 
 \f2 \
 
-\f4\i\b Results
+\f4\i\b Results R^2
 \f2\i0\b0 \
-SVR tuned RS: 0.802120\
-DNN tuned RS: 0.143749\
+SVR tuned RS: \cb4 0.791948\cb1 \
+DNN tuned RS: \cb4 0.165697\cb1 \
 \
 
-\f0 SVR works much better than the DNN Regressor.\
+\f0 SVR works much better than the DNN Regressor in comparison.\
 
 \f2 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
@@ -1393,7 +1405,7 @@ The count of rented bikes (cnt) is just the sum of the features casual and regis
 \f2\i0\b0 \
 \pard\pardeftab720\partightenfactor0
 \cf0 \cb4 \
-best CV score from grid search: 0.645292\cb5 \
+Best CV score from random search: \cb4 0.633508\cb5 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 \cf0 \
 
@@ -1402,17 +1414,16 @@ best CV score from grid search: 0.645292\cb5 \
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 
-\f1\i \cf0 Best parameter from grid search:\
+\f1\i \cf0 Best parameter from grid search: 
+\f2\i0 \{'kernel': 'linear', 'C': 3000\}\
+\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 
-\f2\i0 \cf0 \{'kernel': 'linear', 'C': 1000\}\
-\
-
-\f4\i\b SVR with RandomizesSearch - for registered users
+\f4\i\b \cf0 SVR with RandomizesSearch - for registered users
 \f2\i0\b0 \
 \
 \pard\pardeftab720\partightenfactor0
-\cf0 \cb4 best CV score from grid search: 0.645292\
+\cf0 \cb4 Best CV score from random  search: \cb4 0.794217\cb4 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 \cf0 \cb5 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
@@ -1425,18 +1436,21 @@ best CV score from grid search: 0.645292\cb5 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 
 \f2\b0 \cf0 \
-SVR untuned: -0.031042\
-SVR tuned grid search: 0.798317\
-SVR tuned random search: 0.802120\
+\pard\pardeftab720\partightenfactor0
+\cf0 \cb4 Score cas: 0.634344\
+Score reg: 0.799791\
+Score sum: 0.792683\
 \
-DNN untuned: -0.082288\
-DNN tuned grid search: 0.138676\
-DNN tuned random search: 0.143749\
+RMSE cas: 427.873530\
+RMSE reg: 699.776259\
+RMSE sum: 850.800803\
 \
-SVR tuned cas: 0.619215\
-SVR tuned  reg: 0.774632\
-SVR tuned  sum: 0.802635\
-\
+\pard\pardeftab720\partightenfactor0
+
+\f0 \cf0 \cb5 The coefficient of determination shows that the model is better in capturing the seasonal and trend effects with the registered users than with the casual users. Unfortunately, it is not as good in predicting the actual numbers of registered users compared to casual users (higher RMSE), because the registered users are the majority of all users.
+\f2 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
+\cf0 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 
 \f0\b \cf0 4.2 Justification
