@@ -29,26 +29,20 @@ Philipp Vogler
 \b0\fs24 \
 \
 
-\fs28 I was looking for a problem that is solvable with machine learning in the field of transport and logistics because this is my area of expertise. I found a very promising dataset by the company called Capital Bike Share. It is a bike sharing system in Washington DC. I use this dataset to utilizing machine learning to forecast the demand for the bike sharing system. \
-I applied different types of regression to find an algorithm to predict the demand for bikes based on calendric and weather information.  The information about weather, calendar and bike market is available in a dataset by the University of Porto at UCI ML Repository.  \
+\fs28 I was looking for a problem that is solvable with machine learning in the field of transport and logistics, because this is my area of expertise. I found a very promising dataset by the company called Capital Bike Share. It is a bike sharing system in Washington DC. I use this dataset to utilizing machine learning to forecast the demand for the bike sharing system. \
+I applied different types of regression to find an algorithm to predict the demand for bikes based on calendric and weather information. The information about weather, calendar and bike market is available in a dataset by the University of Porto at UCI ML Repository.  \
 This project tries to create a forecasting function based on two years of historical data by utilizing the machine learning libraries scikit-learn and tensor-flow. 
 \fs24 \
-\
-\
 \
 
 \b\fs28 1.2 Problem Statement  \
 \
 
 \b0 The long-term goal of a corporation is to make a profit. To do so, the corporation has to make decisions regarding financing and investing that factor in the current and future situation of the organization. To quantify the future position of the business,  forecasts and predictions of all important performance indicators are necessary.\
-For a bike sharing company, the future demand for its bikes is a key indicator to consider when making decisions. Predictions about the demand are vital when scheduling maintenance of the current bicycle fleet or when to acquiring additional vehicles.
+For a bike sharing company, the future demand for its bikes is a key indicator to consider when making decisions. Predictions about the demand are vital when scheduling maintenance of the current bicycle fleet or when to acquiring additional vehicles.\
+The goal of this project is to forecast the demand for bikes in dependency of weather conditions like outside temperature and calendric information e.g. holidays. This information and the demand structure is provided in a set with two years of daily historic data. The demand is given as the total daily demand and as a split for registered users and casual users. To increase the quality of the prediction registered user demand and casual user demand will be predicted separately in step two.  \
+To make predictions machine learning is used to train regressors. Scikit-Learn recommends a support vector regressor (SVR) for this kind of problem and data amount. Also, a deep neuronal network (DNN) regressor is trained for comparison. To find the hyper-parameters for these regressors grid search and randomized search are utilized. Due to the small dataset cross-validation is applied.  
 \fs24 \
-
-\fs28 The goal in this project is to forecast the demand for bikes in dependency of weather conditions like outside temperature and calendric informations e.g. holidays. These information and the demand structure is provided in a set with two years of daily historic data. The demand is given as the total daily demand and as a split for registered users and casual users. To increase the quality of the prediction registered user demand and casual user demand will be predicted separately in step two.  \
-To make predictions machine learning is used to train regressors. Scikit-Learn recommends a support vector regressor (SVR) for this kind of problem and data amount. In addition a deep neuronal network (DNN) regressor is trained for comparison. To find the hyper-parameters for these regressors grid search and randomized search are utilized. Due to the small dataset cross validation is applied.  
-\fs24 \
-\
-\
 \
 
 \b\fs28 1.3 Metrics
@@ -57,8 +51,6 @@ To make predictions machine learning is used to train regressors. Scikit-Learn r
 
 \fs28 To measure the performance of the regressions three standard regression metrics are used: Root Mean Squared Error (RMSE) and the coefficient of determination (R^2). Both metrics are calculated for both regressor types. For comparison RMSE is used and R^2 for parameter tuning. \'93The RMSE is directly interpretable in terms of measurement units, and so is a better measure of goodness of fit than a correlation coefficient.\'94
 \fs24 \
-\
-\
 \
 
 \b\fs32 \ul 2 Analysis
@@ -1265,8 +1257,8 @@ Feature column(s):
 \b0 \
 \
 The visualization shows a classic seasonal pattern with an up-trend year over year. \
-Unsurprisingly bike renting in Washington DC is much more popular in the summer month.Spring and autumn months show higher volatility than the rest of the year, which is likely due to changing weather conditions. \
-There are some outliers throughout the dataset, mostly on the lower end. These are left in the dataset because they are not due to measurement errors, but to extreme weather conditions. Because extreme weather conditions are part of the problem, so the data is not excluded.
+Unsurprisingly bike renting in Washington DC is much more popular in the summer month. Spring and autumn months show higher volatility than the rest of the year, which is likely due to changing weather conditions. \
+There are some outliers throughout the dataset, mostly on the lower end. These are left in the dataset because they are not due to measurement errors, but to extreme weather conditions. Because extreme weather conditions are part of the problem the data is not excluded.
 \f2 \
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
@@ -1291,7 +1283,6 @@ There are some outliers throughout the dataset, mostly on the lower end. These a
 To see if a deep neuronal network (DNN) might be able to beat a linear model for this particular prediction problem the tensor-flow DNN Regressor algorithm is employed.
 \fs24 \
 \
-\
 
 \b\fs28 2.5 Benchmark\
 
@@ -1299,7 +1290,7 @@ To see if a deep neuronal network (DNN) might be able to beat a linear model for
 
 \fs28 Two types of regressors are trained: an SVR and a DNN-Regressor. Both are first used off-the-shelf with default parameters to create a benchmark.
 \fs24  
-\fs28 Both "benchmarks" for the coefficient of determination are close to zero. The RMSE is pretty big and similar for both algorithms. Parameter tuning is mandatory for SVR and the DNN Regressor.
+\fs28 Both "benchmarks" for the coefficient of determination are close to zero. The RMSE is pretty big and similar for both algorithms. Therefore parameter tuning is mandatory for SVR and the DNN Regressor.
 \f2 \expnd0\expndtw0\kerning0
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
@@ -1447,8 +1438,17 @@ RMSE sum: 850.800803\
 \
 \pard\pardeftab720\partightenfactor0
 
-\f0 \cf0 \cb5 The coefficient of determination shows that the model is better in capturing the seasonal and trend effects with the registered users than with the casual users. Unfortunately, it is not as good in predicting the actual numbers of registered users compared to casual users (higher RMSE), because the registered users are the majority of all users.
-\f2 \
+\f0 \cf0 \cb5 The coefficient of determination shows that the model is better in capturing the seasonal and trend effects with the registered users than with the casual users. Unfortunately, it is not as good in predicting the actual numbers of registered users compared to casual users (higher RMSE), because the registered users are the majority of all users. The improvements over the SVR model that predicts the data set as a whole are marginal:\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f2 \cf0 \cb4 Score SVR tuned RS: 0.791948\
+Score sum: 0.792683\
+\
+RMSE SVR tuned RS: 852.306407
+\f0 \cb5 \
+
+\f2 \cb4 RMSE sum: 850.800803\cb5 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 \cf0 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
