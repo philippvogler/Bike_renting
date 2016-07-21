@@ -5,7 +5,7 @@
 \red255\green255\blue255;\red36\green43\blue141;}
 {\*\expandedcolortbl;\csgenericrgb\c100000\c100000\c100000;\cssrgb\c0\c0\c0;\csgenericrgb\c80000\c18039\c7059;\cssrgb\c100000\c100000\c100000;
 \csgenericrgb\c100000\c100000\c100000;\csgenericrgb\c14118\c16863\c55294;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww13900\viewh16220\viewkind0
+\paperw11900\paperh16840\margl1440\margr1440\vieww15640\viewh16220\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ri-3367\pardirnatural\partightenfactor0
 
 \f0\fs24 \cf0 Capstone Project\
@@ -1481,7 +1481,7 @@ A coefficient of determination of more than 80% is a decent result for the SVR r
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 \cf0 \
-The predictions on the test set are reasonably good, without overfitting.
+The predictions on the test set are reasonably good, without overfitting. The model captures the upward trend as well as the seasonal curve. About half of the predictions are higher than the truth, and half are lower. As expected from an SVR model, high and low outliers are not captured. The model creates balanced predictions over all.
 \fs24 \
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
@@ -1505,8 +1505,7 @@ Utilizing grid and randomize search in a way that makes sense was a little trick
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 
 \fs28 \cf0 The coefficient of determination of the regressors could be increased by additional iterations in training and the number of folds in the cross-validation, at the expense of computing time. More iterations might be particularly useful with the performance of DNN Regressor. \
-The performance of the DNN Regressor might also increase with the amount of data available. Of course, there are also other regressors available that might perform better on this specific dataset. A wide and deep learning algorithm might also be an alternative.\
-\
+The performance of the DNN Regressor might also increase with the amount of data available. Of course, there are also other regressors available that might perform better on this particular dataset. For example, a wide and deep learning algorithm might be a better-performing alternative.\
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 
