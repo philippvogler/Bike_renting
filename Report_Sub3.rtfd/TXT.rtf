@@ -1255,7 +1255,7 @@ Feature column(s):
 \b0 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 
-\fs28 \cf0 The characteristics of the dataset are very favorable because it was already processed. It is very concise, and missing values are not a problem.  Also, most of the data is already normalized or binary.  Other categorical data like 'weekday' or 'working day\'92/\'91holiday\'92 were processed. \
+\fs28 \cf0 The characteristics of the dataset are very favorable because it was already processed. It is very concise, and missing values are not a problem. Also, most of the data is already normalized or binary. Other categorical data like 'weekday' or 'working day\'92/\'91holiday\'92 were processed and transformed into dummy variables. \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ri-3367\partightenfactor0
 
 \f2 \cf0 \
@@ -1281,7 +1281,7 @@ There are some outliers throughout the dataset, mostly on the lower end. These a
 \b0\fs24 \
 \
 
-\fs28 Dates get dropped because the regressor can not read this datatype and the order information is already stored in the index. The instant variable replicates this information also. \
+\fs28 As described in \'91Characteristics\'92 most of the preprocessing is provided with the data set. Dates get dropped because the regressor can not read this datatype and the order information is already stored in the index. The instant variable replicates this information also. These features are dropped because the order should not differentiate the data points. The January 1st of 2011 is not better or worse than January 1st 2012 by the order of the data set. It should differentiate on the years feature, but that information is stored in the \'91yr\'92 feature already. Keeping date (and instance) in would overemphasize these features.\
 \
 
 \b 2.4 Algorithms and Techniques\
